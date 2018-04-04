@@ -82,3 +82,16 @@ table.upgrade-history .upgrade-history-parent .widget a {
 table.upgrade-history .upgrade-history-parent .widget a.rolled-up {
     background-image: url(../../../static/images/css/rolldown-arrow.gif);
 }
+
+div.mason-cache {
+    min-height: 2em;
+}
+
+div.mason-cache div.mason-cache-info {
+    display: inline-block;
+    padding: 0.5em;
+}
+
+div.mason-cache a.clear-mason-cache {
+    float: right;
+}

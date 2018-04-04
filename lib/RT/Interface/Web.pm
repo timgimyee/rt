@@ -265,6 +265,14 @@ sub HandleRequest {
         require Module::Refresh;
         Module::Refresh->refresh;
     }
+    else {
+        require File::Spec;
+        my $mason_cache_created = ( stat File::Spec->catdir( $RT::MasonDataDir, 'obj' ) )[ 9 ] // '';
+        if ( ( $HTML::Mason::Commands::m->{rt_mason_cache_created} // '' ) ne $mason_cache_created ) {
+            $HTML::Mason::Commands::m->interp->flush_code_cache;
+            $HTML::Mason::Commands::m->{rt_mason_cache_created} = $mason_cache_created;
+        }
+    }
 
     $HTML::Mason::Commands::r->content_type("text/html; charset=utf-8");
 
