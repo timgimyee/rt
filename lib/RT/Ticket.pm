@@ -3316,7 +3316,9 @@ Returns (1, 'Status message') on success and (0, 'Error Message') on failure.
 Returns the current value of InitialPriority.
 (In the database, InitialPriority is stored as int(11).)
 
+=head2 InitialPriorityAsString
 
+Returns the current mapped string value of InitialPriority.
 
 =head2 SetInitialPriority VALUE
 
@@ -3334,7 +3336,9 @@ Returns (1, 'Status message') on success and (0, 'Error Message') on failure.
 Returns the current value of FinalPriority.
 (In the database, FinalPriority is stored as int(11).)
 
+=head2 FinalPriorityAsString
 
+Returns the current mapped string value of FinalPriority.
 
 =head2 SetFinalPriority VALUE
 
@@ -3352,7 +3356,9 @@ Returns (1, 'Status message') on success and (0, 'Error Message') on failure.
 Returns the current value of Priority.
 (In the database, Priority is stored as int(11).)
 
+=head2 PriorityAsString
 
+Returns the current mapped string value of Priority.
 
 =head2 SetPriority VALUE
 
@@ -3695,6 +3701,45 @@ sub Serialize {
     $store{EffectiveId} = \($obj->UID);
 
     return %store;
+}
+
+# Returns String: Various Ticket Priorities as either a string or integer
+sub PriorityAsString {
+    my $self = shift;
+    return $self->_PriorityAsString($self->Priority);
+}
+
+sub InitialPriorityAsString {
+    my $self = shift;
+    return $self->_PriorityAsString( $self->InitialPriority );
+}
+
+sub FinalPriorityAsString {
+    my $self=shift;
+    return $self->_PriorityAsString( $self->FinalPriority );
+}
+
+sub _PriorityAsString {
+    my $self = shift;
+    my $priority = shift;
+    return undef unless defined $priority && length $priority;
+
+    my %map;
+    my $queues = RT->Config->Get('PriorityAsStringQueues');
+    if (@_) {
+        %map = %{ shift(@_) };
+    } elsif ($queues and $queues->{$self->QueueObj->Name}) {
+        %map = %{ $queues->{$self->QueueObj->Name} };
+    } else {
+        %map = RT->Config->Get('PriorityAsString');
+    }
+
+    # Count from high down to low until we find one that our number is
+    # greater than or equal to.
+    foreach my $label ( sort { $map{$b} <=> $map{$a} } keys %map ) {
+        return $label if $priority >= $map{ $label };
+    }
+    return "unknown";
 }
 
 RT::Base->_ImportOverlays();

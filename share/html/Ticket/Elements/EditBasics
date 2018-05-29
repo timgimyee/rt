@@ -58,6 +58,16 @@ if ($TicketObj) {
     $QueueObj ||= $TicketObj->QueueObj;
 }
 
+#my %queue_priority_strings = RT->Config->Get('PriorityAsStringQueues');
+#
+## Leave it as-is if all queues use PriorityAsString; the overridden
+## /Elements/SelectPriority catches this case and always shows the
+## drop-down
+##return unless keys %as_string;
+#
+## Only applies if the ticket is in a PriorityAsString queue
+##return unless $TicketObj and $as_string{$TicketObj->QueueObj->Name};
+
 unless ( @fields ) {
     my $subject = $defaults{'Subject'} || $TicketObj->Subject;
     @fields = (
@@ -128,6 +138,7 @@ unless ( @fields ) {
                     args => {
                         Name => $field,
                         Default => $defaults{$field} || $TicketObj->$field,
+                QueueObj => $QueueObj,
                     }
                 }
             } ('Priority', 'Final Priority')

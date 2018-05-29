@@ -271,11 +271,13 @@
 <td><& /Elements/SelectPriority,
     Name => "InitialPriority",
     Default => $ARGS{InitialPriority} ? $ARGS{InitialPriority} : $QueueObj->DefaultValue('InitialPriority'),
+    QueueObj => $QueueObj,
 &></td></tr>
 <tr><td class="label"><&|/l&>Final Priority</&>:</td>
 <td><& /Elements/SelectPriority,
     Name => "FinalPriority",
     Default => $ARGS{FinalPriority} ? $ARGS{FinalPriority} : $QueueObj->DefaultValue('FinalPriority'),
+    QueueObj => $QueueObj,
 &></td></tr>
 <tr><td class="label"><&|/l&>Time Estimated</&>:</td>
 <td>

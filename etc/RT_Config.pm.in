@@ -1813,6 +1813,66 @@ to Articles when they are included in a message.
 
 Set($LinkArticlesOnInclude, 1);
 
+=item C<%NumericalPriority>
+
+Disable string priorities
+
+    Set($NumericalPriority, 0);
+
+=cut
+
+Set($NumericalPriority, 0);
+
+=item C<%PriorityAsString>
+
+RT can assign a priority value to tickets. Priority is stored as an
+integer in the database, but RT supports mapping strings to numerical
+values. For example, the default mapping is:
+
+    Set(%PriorityAsString, Low => 0, Medium => 50, High => 100);
+
+Redefine C<%PriorityAsString> in C<RT_SiteConfig.pm> to set site
+priority strings.
+
+=cut
+
+Set(%PriorityAsString, Low => 0, Medium => 50, High => 100);
+
+=item C<%PriorityAsStringOrder>
+
+Administrators can alter the order of priority strings as they appear
+in selection drop-downs with C<@PriorityStringOrder>. Administrators
+can also use this setting to limit the available priority strings on
+ticket update pages. When this options is defined, scrips and other RT
+code will still have access to all of the priority strings defined in
+C<%PriorityAsString>. To set a priority string order:
+
+    Set(@PriorityAsStringOrder, qw(Low Medium High));
+
+=cut
+
+=item C<%PriorityAsStringQueues>
+
+RT supports different priority string mappings for individual queues
+with C<%PriorityAsStringQueues>. Use queue names as keys in this
+hash. Then define priority string-number hash maps for each queue's
+value. Tickets in queues that aren't defined in this hash will fall
+back to RT's numerical priorities.
+
+When C<%PriorityAsStringQueues> is set, RT ignores both
+C<%PriorityAsString> and C<@PriorityAsStringOrder>. Administrators do
+not need to define C<%PriorityAsStringQueues> or C<%PriorityAsString>
+when they set C<%PriorityAsStringQueues>.
+
+To set per-queue priority strings:
+
+    Set(%PriorityAsStringQueues,
+      General => { Low => 0, Medium => 50, High => 100 },
+      Binary  => { Low => 0, High => 10 },
+    );
+
+=cut
+
 =back
 
 =head1 Assets

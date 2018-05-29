@@ -45,11 +45,57 @@
 %# those contributions and any derivatives thereof.
 %#
 %# END BPS TAGGED BLOCK }}}
+% if (%map) {
+<select class="select-priority" name="<% $Name %>">
+%     unless ( defined $Default ) {
+<option value="">-</option>
+%     }
+<%PERL>
+foreach my $label ( @order ) {
+    my ($value, $selected);
+    if ( $label eq $default_label ) {
+        ($value, $selected) = ($Default, 'selected="selected"');
+    } else {
+        ($value, $selected) = ($map{ $label }, '');
+    }
+</%PERL>
+<option class="<% lc $label %>" value="<% $value %>" <% $selected |n %>><% loc($label) %></option>
+% }
+</select>
+% } else {
 <input name="<% $Name %>" value="<% $Default %>" size="5" />
+% }
 <%ARGS>
 $Name => 'Priority'
-$Default => ''
+$Default => undef
+$QueueObj => undef
+$PriorityStringMap => undef
 </%ARGS>
 <%INIT>
+
+my $priority_is_string = undef;
+my @order;
+my $default_label = '';
+my %map = ();
+
+if ($PriorityStringMap) {
+    %map = %{$PriorityStringMap};
+} elsif ($QueueObj and ! RT->Config->Get('NumericalPriority')) {
+    my %config = RT->Config->Get('PriorityAsStringQueues') ?  RT->Config->Get('PriorityAsStringQueues') : ();
+    %map = %config && $config{$QueueObj->Name} ? %{$config{$QueueObj->Name}} : RT->Config->Get('PriorityAsString');
+}
+
+if (%map) {
+    if (RT->Config->Get('PriorityAsStringOrder')) {
+    @order = grep {exists $map{$_}} RT->Config->Get('PriorityAsStringOrder');
+    } else {
+    @order = sort { $map{$a} <=> $map{$b} } keys %map;
+    }
+
+    if ( defined $Default && length $Default ) {
+    $default_label = RT::Ticket->_PriorityAsString( $Default, \%map ) || '';
+    }
+}
+
 $Default = '' unless defined $Default;
 </%INIT>
