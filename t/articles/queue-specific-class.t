@@ -36,7 +36,9 @@ for my $name ( keys %class ) {
 
     $m->submit_form(
         form_number => 2,
-        fields      => { Name => "article $name" }
+        fields      => { Name => "article $name",
+                         'Summary' => "$name summary",
+                         'Object-RT::Article--CustomField-1-Values' => "$name content"}
     );
 
     $m->content_like( qr/Article \d+ created/, "created article $name" );
@@ -104,7 +106,7 @@ diag "update ticket to see if there are both article foo and bar"
         fields      => { 'IncludeArticleId' => '1' },
         button      => 'Go',
     );
-    $m->content_like( qr/article foo.*article foo/s, 'selected article foo' );
+    $m->content_like( qr/foo summary/s, 'article included' );
 }
 
 
@@ -167,4 +169,5 @@ diag "update ticket to see if there are both article foo and bar"
     $m->content_lacks( 'article bar', 'no article bar' );
 }
 
+undef $m;
 done_testing();
