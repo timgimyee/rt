@@ -1,0 +1,104 @@
+=head1 Introduction
+
+Custom Roles allow you to create your own roles that work just like RT's
+built-in Requestors, Cc, AdminCc, and Owner roles.
+
+=head1 Example
+
+Let's say you would like to find all of the tickets your team's Project Lead
+is managing. First thought might be to just assign this Lead user as an AdminCc
+on each ticket. This may work well in some cases, however, as the Project Leads
+changes, it becomes more difficult to manage all of the RT rights and notifications
+associated with the user. It's easier to see the role, Project Lead needs to be
+updated, rather than AdminCc. Also, having this in the AdminCc, absorbs all the
+rights granted to AdminCcs on that queue. Whereas, a Custom Role can have its
+own rights.
+
+=head2 Creating a new Custom Role
+
+To create a new Custom Role, go to Admin > Custom Roles > Create. Here, you
+will have the option to give it a Name, a Description and an Entry Hint. Note, that
+the Name field must be unique, duplicate Custom Roles are not allowed. Below
+these fields, you will see a checkbox to allow multiple users to be set on this one
+Custom Role. This would work well if you have a role, "Supervisors", for example,
+where more than one user might be assigned. Once the Custom Role is created,
+you will no longer be able to change this multiple user option. You can however
+disable the Custom Role and create another if you made a mistake.
+
+=for html <img alt="Create a Custom Role"
+src="images/customroles-create-a-customrole.png">
+
+=for :text [Create a Custom Role F<docs/images/customroles-create-a-customrole.png>]
+
+=for :man [Create a Custom Role F<docs/images/customroles-create-a-customrole.png>]
+
+=head2 Enabling by Queue
+
+After creating your new Custom Role, you will want to indicate which queue it will
+apply to. Go to Admin > Custom Roles > [select the role] > Applies to, and you
+can select which queue you would like to add the Custom Role to.
+
+=for html <img alt="Apply Custom Role to Queue"
+src="images/customroles-apply-to-queue.png">
+
+=for :text [Apply Custom Role to Queue F<docs/images/customroles-apply-to-queue.png>]
+
+=for :man [Apply Custom Role to Queue F<docs/images/customroles-apply-to-queue.png>]
+
+=head2 Applying Rights to Specific Roles
+
+RT allows you to grants rights on the user level, group level, queue level and also
+by role. One of the benefits of setting permissions with Custom Roles, is that it is
+no longer necessary to create multiple groups with only a user or two. But rather,
+granting rights directly on a specific role allows you to clearly see each the purpose
+of each user assigned on a ticket. Those rights will also only be limited to that
+specific ticket/queue where the user is assigned to the role, instead of globally
+where it might be more difficult to track down which rights were granted and where.
+
+=head2 Assigning a User
+
+Now that you have created a Custom Role and granted rights, you can now assign
+a user that role on the queue level or each individual ticket.
+
+To assign on the queue level, go to Admin > Queues > [select queue] > Watchers.
+Here, you will see on the left hand side, all of the RT roles applied to the queue. You
+can search for a user and/or group then assign them to your new Custom Role. As
+a queue level Custom Role or watcher, the user will automatically be assigned as that
+role on each new ticket created in the queue and also granted the same rights on
+each of the tickets.
+
+To assign a user under a Custom Role on an existing ticket, head to the ticket
+display page and click on People. Just like adding on the queue level, you will be able
+to search for a user/group to add the the Custom Role. These watchers will apply to
+this specific ticket. For new tickets, the Custom Role name will appear on the ticket
+create page, below the default RT roles, (Requestors, Cc, AdminCc).
+
+=for html <img alt="Assign Custom Role on Ticket Create"
+src="images/customroles-assign-on-ticket-create.png">
+
+=for :text [Assign Custom Role on Ticket Create F<docs/images/customroles-assign-on-ticket-create.png>]
+
+=for :man [Assign Custom Role on Ticket Create F<docs/images/customroles-assign-on-ticket-create.png>]
+
+=head2 Sending Notifications
+
+As Custom Roles are watchers on tickets, you can decide which notifications the
+user/group will receive. You can create a custom ScripAction to send out notifications
+on the specific Custom Role.
+
+=head2 Search Tickets by Custom Role
+
+To search for tickets with a Custom Role assigned to a specific user/group, you can
+use the RT Query Builder. In order to view the available Custom Roles, you will
+first need to add the queue to the query. After clicking on 'Add these terms', all
+of the Custom Roles applied to that queue will be listed at the bottom of the Query
+Builder criteria fields.
+
+=for html <img alt="Search by Custom Role with Query Builder"
+src="images/customroles-query-builder.png">
+
+=for :text [Search by Custom Role with Query Builder F<docs/images/customroles-query-builder.png>]
+
+=for :man [Search by Custom Role with Query Builder F<docs/images/customroles-query-builder.png>]
+
+=cut
