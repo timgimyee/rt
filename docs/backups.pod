@@ -157,6 +157,48 @@ can run C<analyze verbose>.
 
 =back
 
+=head3 Migrating from MySQL to PostgreSQL
+
+=over
+
+=item Backup Data
+
+Follow the same step as above to create a backup of your MySQL/MariaDB
+database with the mysqldump command. Next, you will want to copy your
+database with the RT tool, L<rt-serializer> (see the documentation for
+some additional information on which flags to use). It's also a good idea
+to run the tool, L<rt-validator>, to make sure there aren't any errors within
+your database:
+
+        /opt/rt4/sbin/rt-validator --check &&
+                /opt/rt4/sbin/rt-serializer --directory ~/path/to/store/serialized/data
+
+=item Setup Database
+
+After the database serializes cleanly, you can then begin to set up your
+new PostgreSQL database. As you are working from some existing data, you do
+not need the initial RT data inserted into the databases, but you will need
+the tables created. When you use the L<rt-importer> tool, the data will fill
+the corresponding tables. After creating your new postgres database, run the
+L<rt-setup-database> command with these options:
+
+        /opt/rt4/sbin/rt-setup-database --action create,schema,acl
+
+=item Import Data
+
+Now that you have your new database set up, you can then use the L<rt-importer>
+to insert the serialized data:
+
+        /opt/rt4/sbin/rt-importer /path/to/serialized/data
+
+Lastly, you will need to run the reset-sequences script, which will update
+the postgres sequences to the appropriate values. You may need to update the
+lines that point to your perl (line 1) and your RT (53, 54):
+
+        /opt/rt4/etc/upgrade/reset-sequences
+
+=back
+
 =head2 FILESYSTEM
 
 You will want to back up, at the very least, the following directories and files:
