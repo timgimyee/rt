@@ -281,6 +281,93 @@ sub ValidateName {
     }
 }
 
+=head2 GenerateAnonymousName INT
+
+Generate a random username proceeded by 'anon_' and then a
+random string, Returns the AnonymousName string. The length of the
+random string can be set by providing an integer for character length.
+
+=cut
+
+sub GenerateAnonymousName {
+    my $self = shift;
+    my $length = shift;
+
+    my $invalid = 1;
+    my $name = '';
+
+    while ( $invalid ) {
+        my @Chars = ('a'..'z', 'A'..'Z', '0'..'9');
+        for (1..$length || 9) {
+            $name .= $Chars[int rand @Chars];
+        }
+        $invalid = !$self->ValidateName('anon_' . $name);
+    }
+    return 'anon_' . $name;
+}
+
+=head2 AnonymizeUser { clear_customfields }
+
+Remove all personal identifying information on the user record, but keep
+the user record alive. Additionally replace the username with an anonymous name.
+Submit clear_customfields in a paramhash, if true all customfield values
+applied to the user record will be cleared.
+
+=cut
+
+sub AnonymizeUser {
+    my $self = shift;
+    my %args = (
+        ClearCustomFields  => undef,
+        @_,
+    );
+
+    my @user_idenifying_info = qw (
+        Address1 Address2 City Comments Country EmailAddress
+        FreeformContactInfo Gecos HomePhone MobilePhone NickName Organization
+        PagerPhone RealName Signature SMIMECertificate State Timezone WorkPhone Zip
+    );
+
+    $RT::Handle->BeginTransaction();
+    # Remove identifying user information from record
+    foreach my $attr (@user_idenifying_info) {
+        if ( defined $self->$attr && length $self->$attr) {
+                my $method = 'Set' . $attr;
+                my ($ret, $msg) = $self->$method('');
+                RT::Logger->error($msg) unless $ret;
+                return ($ret, $msg) unless $ret;
+        }
+    }
+
+    # Do not do anything if password is already unset
+    if ( $self->HasPassword ) {
+        my ($ret, $msg) = $self->_Set(Field => 'Password', Value => '*NO-PASSWORD*' );
+        RT::Logger->error($msg) unless $ret;
+    }
+
+    # Generate the random anon username
+    my ($ret, $msg) = $self->SetName($self->GenerateAnonymousName);
+    RT::Logger->error($msg) unless $ret;
+
+    # Remove user customfield values
+    if ( $args{'ClearCustomFields'} ) {
+        my $customfields = RT::CustomFields->new(RT->SystemUser);
+        ($ret, $msg) = $customfields->LimitToLookupType('RT::User');
+        RT::Logger->error($msg) unless $ret;
+
+        while (my $customfield = $customfields->Next) {
+            if ( $self->FirstCustomFieldValue( $customfield->Name ) ) {
+                ($ret, $msg) = $self->DeleteCustomFieldValue( Field => $customfield->Id, Value =>  $self->FirstCustomFieldValue( $customfield->Name ) );
+                RT::Logger->error($msg) unless $ret;
+                $RT::Handle->Rollback() unless $ret;
+            }
+        }
+    }
+    $RT::Handle->Commit();
+
+    return(1, 'User successfully anonymized');
+}
+
 =head2 ValidatePassword STRING
 
 Returns either (0, "failure reason") or 1 depending on whether the given
