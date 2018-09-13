@@ -1,0 +1,52 @@
+From 1e38d70cbb785c14443d5168170955f164906068 Mon Sep 17 00:00:00 2001
+From: Craig Kaiser <craig@bestpractical.com>
+Date: Fri, 15 Jun 2018 08:54:46 -0400
+Subject: [PATCH 3/8] Add GenerateAnonymousName function for RT::User
+
+The GenerateAnonymousName function will return a random valid (unique)
+username with the format 'anon_1234abcd' where after 'anon_' is a random
+string. Specify length of the random string by providing int value to
+function.
+---
+ lib/RT/User.pm | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+diff --git a/lib/RT/User.pm b/lib/RT/User.pm
+index ca47377cf..6ade28f6a 100644
+--- a/lib/RT/User.pm
++++ b/lib/RT/User.pm
+@@ -281,6 +281,31 @@ sub ValidateName {
+     }
+ }
+ 
++=head2 GenerateAnonymousName INT
++
++Generate a random username proceeded by 'anon_' and then a
++random string, Returns the AnonymousName string. The length of the
++random string can be set by providing an integer for character length.
++
++=cut
++
++sub GenerateAnonymousName {
++    my $self = shift;
++    my $length = shift;
++
++    my $invalid = 1;
++    my $name = '';
++
++    while ( $invalid ) {
++        my @Chars = ('a'..'z', 'A'..'Z', '0'..'9');
++        for (1..$length || 9) {
++            $name .= $Chars[int rand @Chars];
++        }
++        $invalid = !$self->ValidateName('anon_' . $name);
++    }
++    return 'anon_' . $name;
++}
++
+ =head2 ValidatePassword STRING
+ 
+ Returns either (0, "failure reason") or 1 depending on whether the given
+-- 
+2.15.0
+
