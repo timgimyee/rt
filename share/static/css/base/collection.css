@@ -24,3 +24,24 @@ table.collection td:first-child, table.collection th:first-child {
 .results-count::before {
     content: '\a0\a0\a0\a0';
 }
+
+th.collection-as-table span.order {
+    padding: 0 2px;
+}
+
+th.collection-as-table span.order i {
+    border: solid black;
+    border-width: 0 2px 2px 0;
+    display: inline-block;
+    padding: 2px;
+}
+
+th.collection-as-table span.order i.asc {
+    transform: rotate(-135deg);
+    -webkit-transform: rotate(-135deg);
+}
+
+th.collection-as-table span.order i.desc {
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+}
