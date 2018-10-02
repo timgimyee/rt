@@ -192,6 +192,25 @@
 </table>
 </&>
 
+<&| /Widgets/TitleBox, title => loc('Content Context') &>
+
+<p class="description">
+<&|/l&>For searches like "10 highest priority tickets I own" that contain __CurrentUser__ in the query, the results are various for differnet users. For dashboards containing such searches, you might want to generate different content for each recipient who is assumed to be __CurrentUser__ in the query. Tick "Each dashboard recipient" for cases like that.</&>
+</p>
+
+<table>
+    <tr><td class="label"><&|/l&>Run Dashboard Searches As</&>:</td>
+        <td>
+            <input type="radio" id="context-subscriber" name="Context" value="subscriber" <% $fields{'Context'} eq 'subscriber' ? 'checked="checked"' : "" |n %>></input>
+            <label for="context-subscriber"><&|/l&>Dashboard subscriber</&>(<% $session{CurrentUser}->Name %>)</label>
+            <br />
+            <input type="radio" id="context-recipient" name="Context" value="recipient" <% $fields{'Context'} eq 'recipient' ? 'checked="checked"' : "" |n %>></input>
+            <label for="context-recipient"><&|/l&>Each dashboard recipient</&></label>
+        </td>
+    </tr>
+</table>
+</&>
+
 <&| /Widgets/TitleBox, title => loc('Recipients') &>
 <& Elements/SubscriptionRecipients,
     UserField => $UserField, UserString => $UserString, UserOp => $UserOp,
@@ -246,6 +265,7 @@ my %fields = (
     Counter     => 0,
     Language    => '',
     SuppressIfEmpty => 0,
+    Context     => 'subscriber',
 );
 
 $m->callback( %ARGS, CallbackName => 'SubscriptionFields', FieldsRef => \%fields,

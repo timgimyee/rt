@@ -176,11 +176,26 @@ sub MailDashboards {
                         $lang = 'en';
                     }
 
+                    my $context_user;
+                    if ( ( $subscription->SubValue( 'Context' ) // '' ) eq 'recipient' ) {
+                        $context_user = RT::CurrentUser->new( RT->SystemUser );
+                        my ( $ret, $msg ) = $context_user->LoadByEmail( $email );
+                        unless ( $ret ) {
+                            RT->Logger->error( "Failed to load user with email $email: $msg" );
+                            next;
+                        }
+                        $context_user->{'LangHandle'} = RT::I18N->get_handle($lang);
+                    }
+                    else {
+                        $context_user = $currentuser;
+                    }
+
                     $currentuser->{'LangHandle'} = RT::I18N->get_handle($lang);
 
                     $self->SendDashboard(
                         %args,
                         CurrentUser  => $currentuser,
+                        ContextUser  => $context_user,
                         Email        => $email,
                         Subscription => $subscription,
                         From         => $from,
@@ -278,6 +293,7 @@ sub SendDashboard {
     my $self = shift;
     my %args = (
         CurrentUser  => undef,
+        ContextUser  => undef,
         Email        => undef,
         Subscription => undef,
         DryRun       => 0,
@@ -285,6 +301,7 @@ sub SendDashboard {
     );
 
     my $currentuser  = $args{CurrentUser};
+    my $context_user = $args{ContextUser} || $currentuser;
     my $subscription = $args{Subscription};
 
     my $rows = $subscription->SubValue('Rows');
@@ -303,17 +320,18 @@ sub SendDashboard {
         );
     }
 
-    $RT::Logger->debug('Generating dashboard "'.$dashboard->Name.'" for user "'.$currentuser->Name.'":');
+    $RT::Logger->debug('Generating dashboard "'.$dashboard->Name.'" for user "'.$context_user->Name.'":');
 
     if ($args{DryRun}) {
         print << "SUMMARY";
     Dashboard: @{[ $dashboard->Name ]}
-    User:   @{[ $currentuser->Name ]} <$args{Email}>
+    User:   @{[ $context_user->Name ]} <$args{Email}>
 SUMMARY
         return;
     }
 
     local $HTML::Mason::Commands::session{CurrentUser} = $currentuser;
+    local $HTML::Mason::Commands::session{ContextUser} = $context_user;
     local $HTML::Mason::Commands::r = RT::Dashboard::FakeRequest->new;
 
     my $HasResults = undef;
