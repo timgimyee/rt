@@ -171,7 +171,7 @@ to run the tool, L<rt-validator>, to make sure there aren't any errors within
 your database:
 
         /opt/rt4/sbin/rt-validator --check &&
-                /opt/rt4/sbin/rt-serializer --directory ~/path/to/store/serialized/data
+                /opt/rt4/sbin/rt-serializer --clone --directory ~/path/to/store/serialized/data
 
 =item Setup Database
 
@@ -261,4 +261,3 @@ Simply saving a tarball should be sufficient, with something like:
     tar czvpf rt-backup-`date +%Y%m%d`.tar.gz /opt/rt4 /etc/aliases /etc/httpd ...
 
 Be sure to include all the directories and files you enumerated above!
-
